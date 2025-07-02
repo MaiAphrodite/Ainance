@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Primary Colors - Flat Minimalistic Theme -->
+    <color name="primary">#1ABC9C</color>
+    <color name="primary_dark">#16A085</color>
+    <color name="primary_light">#48C9B0</color>
+    
+    <!-- Secondary Colors -->
+    <color name="secondary">#1ABC9C</color>
+    <color name="secondary_dark">#16A085</color>
+    <color name="secondary_light">#48C9B0</color>
+    
+    <!-- Background Colors -->
+    <color name="background_primary">#1F1F2E</color>
+    <color name="background_secondary">#27293D</color>
+    <color name="background_tertiary">#2F3349</color>
+    
+    <!-- Glass Colors -->
+    <color name="glass_primary">#1A27293D</color>
+    <color name="glass_secondary">#2627293D</color>
+    <color name="glass_accent">#331ABC9C</color>
+    
+    <!-- Text Colors -->
+    <color name="text_primary">#F8F9FA</color>
+    <color name="text_secondary">#E9ECEF</color>
+    <color name="text_tertiary">#ADB5BD</color>
+    
+    <!-- Status Colors -->
+    <color name="income_green">#2ECC71</color>
+    <color name="outcome_red">#FF6B6B</color>
+    <color name="warning_yellow">#F59E0B</color>
+    
+    <!-- Surface Colors -->
+    <color name="surface">#1E293B</color>
+    <color name="surface_variant">#334155</color>
+    <color name="on_surface">#F8FAFC</color>
+    
+    <!-- Common Colors -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="transparent">#00000000</color>
+</resources>
