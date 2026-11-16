@@ -1,112 +1,116 @@
 # AInance - AI Financial Advisor
 
-A modern Android financial management app with AI-powered insights and goal tracking.
+> Android finance tracker with savings goals and an LLM advisor built on your own data
+
+[![License](https://img.shields.io/badge/license-MIT-2ea44f?style=flat-square)](LICENSE)
+[![Stack](https://img.shields.io/badge/stack-Android%20%7C%20Java%20%7C%20Room-000?style=flat-square)](#tech-stack)
+
+AInance is a single module Android app for recording income and expenses, setting
+savings goals, and asking a chat model for financial advice based on the data already
+on the phone. Everything except the AI request itself stays local: transactions and
+goals live in Room, and settings live in SharedPreferences. It is a personal project,
+not a published product, so there is no account system, sync, or analytics.
 
 ## Features
 
-### 💰 Transaction Management
-- **Modern Add Transaction Dialog**: Sleek, glassy UI with category dropdown
-- **Income & Expense Tracking**: Automatic categorization and balance calculation
-- **Transaction History**: Complete record of all financial activities
+- **Transactions**: an add dialog with Income and Expense tabs, an amount, a
+  description, and a category picked from a preset list.
+- **Balance**: computed as total income minus total expenses. The dashboard shows the
+  latest five transactions, while totals always use every row in the database.
+- **Goals**: create a goal with a target amount, a type (Monthly, Yearly, Custom), and
+  a target date. Progress is a percentage capped at 100 percent.
+- **Goal payments**: paying into a goal records an Expense transaction, so the money
+  leaves the main balance, and adds the same amount to the goal. The dialog refuses
+  payments larger than the current balance.
+- **AI advice**: the Ask AI button sends a summary (totals, up to ten recent
+  transactions, goals with progress) to an OpenAI compatible chat completions
+  endpoint and renders the reply as Markdown.
+- **Settings**: currency symbol (default `Rp.`), API base URL, API key, and a reset
+  that deletes all transactions, goals, and preferences.
 
-### 🎯 Goal Management
-- **Smart Goal Creation**: Set financial goals with custom target dates
-- **Goal Payments**: Make payments towards goals that deduct from main balance
-- **Progress Tracking**: Visual progress bars and percentage completion
-- **Goal Types**: Monthly, yearly, and custom goal periods
+## Tech stack
 
-### 🤖 AI Financial Advisor
-- **Smart Insights**: AI-powered financial advice based on your spending patterns
-- **Markdown Support**: Rich text formatting for AI responses
-- **Contextual Analysis**: AI considers your goals and transaction history
-- **Multiple AI Providers**: Support for OpenAI and local AI endpoints
+| Layer | Choice |
+|-------|--------|
+| Language | Java 11 source/target, view binding enabled |
+| Platform | minSdk 29, targetSdk 35, compileSdk 35 |
+| Build | Gradle 8.11.1 wrapper, AGP 8.9.0, version catalog in `gradle/libs.versions.toml` |
+| UI | AppCompat 1.7.1, Material 1.12.0, ConstraintLayout 2.2.1, Navigation 2.9.0 |
+| Data | Room 2.6.1 with an annotation processor, SharedPreferences |
+| Network | OkHttp 4.12.0 and Gson 2.10.1 for the chat completions call |
+| Tests | JUnit 4.13.2, AndroidX test runner, Espresso 3.6.1 |
 
-### ⚙️ Modern UI & UX
-- **Flat Design**: Clean, minimalistic interface with modern color scheme
-- **Glassy Dialogs**: Beautiful glass-morphism design elements
-- **Responsive Layout**: Optimized for all screen sizes
-- **Settings Management**: Comprehensive settings with data reset functionality
-
-## Technical Features
-
-### 🏗️ Architecture
-- **MVVM Pattern**: Clean architecture with ViewModel and LiveData
-- **Room Database**: Local data persistence for offline functionality
-- **Repository Pattern**: Clean data layer abstraction
-
-### 📱 Android Components
-- **Navigation Component**: Smooth fragment navigation
-- **Material Design**: Following Google's Material Design guidelines
-- **RecyclerView**: Efficient list rendering for transactions and goals
-- **Shared Preferences**: User settings and preferences management
-
-### 🔧 Data Management
-- **Goal Logic**: Goals start at 0 progress, payments deduct from main balance
-- **Transaction Tracking**: Automatic balance calculation (income - expenses)
-- **Data Reset**: Complete data clearing functionality in settings
-- **Export Ready**: Data structure ready for import/export features
-
-## Getting Started
+## Getting started
 
 ### Prerequisites
-- Android Studio Arctic Fox or later
-- Android SDK 24 (API level 24) or higher
-- Java 8 or higher
 
-### Installation
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/MaiAphrodite/Ainance.git
-   ```
+- Android Studio with support for AGP 8.9.0 (the wrapper pins Gradle 8.11.1)
+- Android SDK 35 installed
+- A device or emulator on Android 10 (API 29) or newer
+- The app compiles with Java 11 source and target compatibility, as set in
+  `app/build.gradle.kts`
 
-2. Open the project in Android Studio
+### Quick start in Android Studio
 
-3. Build and run the app on your device or emulator
+1. Open Android Studio, then **File > Open** and select this repository folder.
+2. Let Gradle sync. It downloads Gradle 8.11.1 and the libraries listed in
+   `gradle/libs.versions.toml`.
+3. Choose the `app` run configuration and press **Run**.
 
-### Configuration
-- **AI Service**: Configure your AI endpoint and API key in Settings
-- **Currency**: Set your preferred currency symbol
-- **Categories**: Customize income and expense categories
+Or build the debug APK from a terminal:
 
-## How It Works
+```bash
+sh gradlew :app:assembleDebug
+```
 
-### Goal Management
-1. **Create Goals**: Set a target amount and date for your financial goals
-2. **Make Payments**: Pay towards goals using the "Pay" button - this deducts from your main balance
-3. **Track Progress**: Monitor your progress with visual indicators
+The wrapper script is committed without the executable bit, so call it through `sh`
+instead of `./gradlew`.
 
-### AI Advisor
-1. **Context Analysis**: The AI considers your income, expenses, and goals
-2. **Smart Advice**: Get personalized financial recommendations
-3. **Dynamic Responses**: Scrollable, markdown-formatted AI responses
+### Configure the AI advisor
 
-### Balance Management
-- **Main Balance** = Total Income - Total Expenses - Goal Payments
-- **Goal Progress** = Sum of all payments made to that specific goal
-- **Independent Tracking**: Goals don't automatically affect main balance until payments are made
+1. Tap the floating action button, then **Settings**.
+2. Enter an API base URL. Leave it empty to use the OpenAI default
+   (`https://api.openai.com/v1/chat/completions`), or point it at a local server such
+   as `http://10.0.2.2:1234` from the emulator.
+3. Enter an API key. It is required for `openai.com` endpoints and optional for local
+   servers, which are detected by host and port (`localhost`, `127.0.0.1`, `192.168.`,
+   `10.0.`, `172.16.`, ports 1234, 8080, 3000, and 5000).
+4. Save, return to the dashboard, and tap **Ask AI**.
+
+## How it works
+
+### Balance and goals
+
+- Main balance = total income minus total expenses.
+- A goal payment is stored as an Expense transaction with the category `goal payment`,
+  so it reduces the balance once and raises the goal's saved amount.
+- Goals do not consume income automatically. Only explicit payments move them.
+
+### AI request
+
+`AIService` builds a chat completions request with a system prompt that carries the
+financial summary and the user question, then reads the first choice from the JSON
+response. The model name is fixed at `gpt-3.5-turbo`, so a local server has to accept
+that name.
+
+## Notes and limitations
+
+- The API key is stored in plain SharedPreferences. Treat this as a personal build.
+- The dashboard lists the latest five transactions only; there is no separate full
+  history screen.
+- Categories are fixed lists in `FormatUtils`. Settings changes the currency symbol,
+  not the category lists.
+- `SecondFragment` and its navigation action come from the Android Studio navigation
+  template and are not reachable from the current UI.
+- The model id is hard-coded in `AIService.java`. Change the constant if your endpoint
+  needs a different model name.
+- Export, import, charts, and budget alerts are not implemented.
 
 ## Contributing
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+Issues and pull requests are welcome. If you change behavior, say which device and API
+level you tested on.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Roadmap
-
-- [ ] Data export/import functionality
-- [ ] Advanced AI integration with more providers
-- [ ] Spending analytics and charts
-- [ ] Budget planning features
-- [ ] Notification reminders for goals
-- [ ] Dark mode support
-- [ ] Multi-currency support
-
----
-
-**AInance** - Your intelligent financial companion 📊✨
+MIT, see [LICENSE](LICENSE). Copyright (c) 2026 Mai.
